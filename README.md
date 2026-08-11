@@ -3,12 +3,9 @@
 Official inference release for **EvDiff**, a one-step diffusion model that
 reconstructs high-quality color videos from monochrome event-camera streams.
 
-> **What this repo contains:** the minimal code to run **inference** (reconstruct
-> videos from events) and to **prepare DSEC data** into the format inference
-> expects.
->
-> **What's *not* here:** training code, evaluation code, and the public-baseline
-> (EVREAL) inference wrapper. This is an inference-only release.
+> This repository provides the inference code and data-preparation tools to
+> reproduce EvDiff's reconstruction results. Evaluation is performed with the
+> [EVREAL](https://github.com/ercanburak/EVREAL) benchmark suite.
 
 ---
 

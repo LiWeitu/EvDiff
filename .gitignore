@@ -1,0 +1,41 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- model weights & data (never commit these — download per WEIGHTS.md) ---
+checkpoints/
+pretrained/
+sd3/
+*.safetensors
+*.pth
+*.pt
+!dataset/default/prompt_embeds.pt
+!dataset/default/pool_embeds.pt
+!dataset/null/prompt_embeds.pt
+!dataset/null/pool_embeds.pt
+
+# --- inference outputs ---
+outputs/
+results/
+predictions/
+*.png
+*.mp4
+
+# --- logs ---
+logs/
+*.log
+wandb/
+
+# --- editor / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

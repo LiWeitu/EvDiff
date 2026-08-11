@@ -1,0 +1,35 @@
+# EvDiff — runtime dependencies for inference + DSEC/BS-ERGB data conversion.
+# Tested with Python 3.11 on CUDA 12.x. Install order matters: install torch
+# first matching your CUDA version (see https://pytorch.org/get-started/locally/),
+# then the rest.
+#
+# These are the EXACT deps actually imported by the code paths in this repo
+# (inference entry test/infer_e2vid.py + data tools in tools/dsec/), verified by
+# tracing every top-level `import`/`from`. The training environment (evrec_msp)
+# installs many more packages (wandb, accelerate, deepspeed, lpips, pyiqa,
+# decord, kornia, scikit-*, ...) but those are for training/eval and are NOT
+# needed here.
+
+# --- core deep-learning stack ---
+torch>=2.1
+torchvision
+diffusers>=0.30        # SD3Transformer2DModel, FlowMatchEulerDiscreteScheduler, StableDiffusion3Pipeline
+peft>=0.10             # LoraConfig for the SD3 transformer LoRA
+
+# --- numerics / data ---
+numpy
+scipy                  # Rotation, used by the DSEC converter
+opencv-python          # image I/O + stereo rectify remap in the DSEC converter
+
+# --- HDF5 (raw DSEC events live in events.h5) ---
+h5py
+hdf5plugin             # DSEC events.h5 uses bitshuffle/compression plugins
+
+# --- misc ---
+omegaconf              # reads DSEC calibration/cam_to_cam.yaml
+tqdm                   # progress bars
+torchinfo              # imported at the TOP of models/voxel_model.py (required to load the module)
+
+# thop appears only inside an optional profiling helper in models/voxel_model.py
+# (calculate_model_complexity, NOT on the inference path). Safe to omit; install
+# with `pip install thop` only if you call that helper yourself.

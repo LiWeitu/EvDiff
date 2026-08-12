@@ -1839,7 +1839,7 @@ if __name__ == "__main__":
     ##############################################################################
     # # 初始化VAE模型
     # vae = AutoencoderKL.from_pretrained(
-    #     "/path/to/sd3-medium",  # 示例预训练模型
+    #     "/path/to/SD3",  # 示例预训练模型
     #     subfolder="vae"
     # )
     # encoder = vae.encoder.eval()  # 获取encoder并设为评估模式

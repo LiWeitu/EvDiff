@@ -619,8 +619,8 @@ def batch_convert(dsec_base_path, hqf_base_path, sequences=None,
 if __name__ == "__main__":
     # 示例1: 转换单个序列
     # converter = DSECToHQFConverter(
-    #     dsec_path="/path/to/local-resource",
-    #     output_path="/path/to/local-resource",
+    #     dsec_path="/path/to/DSEC/test/<seq>",
+    #     output_path="/path/to/DSEC/mem/test/<seq>",
     #     event_chunk_size=20_000_000,  # 每次处理1000万个事件
     #     image_batch_size=50           # 每次处理50张图像
     # )
@@ -628,8 +628,8 @@ if __name__ == "__main__":
     
     # 示例2: 批量转换
     batch_convert(
-        dsec_base_path="/path/to/local-resource",
-        hqf_base_path="/path/to/local-resource",
+        dsec_base_path="/path/to/DSEC/test",
+        hqf_base_path="/path/to/DSEC/mem/test",
         event_chunk_size=20_000_000,
         image_batch_size=100
     )

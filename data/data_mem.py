@@ -453,7 +453,7 @@ def main():
     import time
     
     # Configuration
-    data_path = '/path/to/datasets/bs_ergb_optimized'
+    data_path = './bs_ergb_optimized'  # TODO: replace with your local BS-ERGB path
     segment_length = 20
     num_samples = 10
     

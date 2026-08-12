@@ -7,7 +7,7 @@
 
 用法（在服务器上，到 .../<seq>/flow 这一层）：
   python tools/dsec/probe_flow.py \
-      --flow-root /path/to/datasets/DSEC/flow/train/thun_00_a/flow
+      --flow-root /path/to/DSEC/flow/train/<seq>/flow
 """
 import argparse
 from pathlib import Path

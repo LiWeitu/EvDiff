@@ -1,5 +1,9 @@
 # EvDiff: Event-Based Video Reconstruction using One-Step Diffusion Models
 
+[![Project Page](https://img.shields.io/badge/Project_Page-EvDiff-161616)](https://liweitu.github.io/EvDiff/)
+[![arXiv](https://img.shields.io/badge/arXiv-2511.17492-b31a1c)](https://arxiv.org/abs/2511.17492)
+[![ECCV 2026](https://img.shields.io/badge/ECCV-2026-0B4E78)](https://eccv.ecva.net/)
+
 Official inference release for **EvDiff**, a one-step diffusion model that
 reconstructs high-quality color videos from monochrome event-camera streams.
 

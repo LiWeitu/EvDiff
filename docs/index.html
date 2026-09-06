@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  ============================================================================
+  EvDiff — ECCV 2026 project page
+  ----------------------------------------------------------------------------
+  DESIGN SYSTEM (minimal black-and-white academic)
+    Palette   : paper #ffffff · ink #161616 · muted #5f5f5f · rule #e4e4e4
+                wash #f6f6f6 (table highlight / code bg). No accent color —
+                all color on this page comes from the figures and the video.
+    Type      : Source Serif 4 (display/headings) · Source Sans 3 (body)
+                IBM Plex Mono (kickers, labels, stats, BibTeX)
+    Structure : single ~1000px column, numbered mono section kickers,
+                hairline rules between sections, booktabs-style tables,
+                centered hero / captions for a symmetric composition.
+    Sections  : hero → teaser → abstract → video → method → results
+                (stats band, tables, gallery w/ tabs + EvDiff-vs-ET-Net
+                compare slider) → poster → citation → footer.
+  ============================================================================
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EvDiff: Event-Based Video Reconstruction using One-Step Diffusion Models</title>
+<meta name="description" content="EvDiff reconstructs high-quality color video from monochrome event streams with a one-step diffusion model. ECCV 2026.">
+<!-- Update og:url / canonical / og:image to the final GitHub Pages URL after deployment -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="EvDiff: Event-Based Video Reconstruction using One-Step Diffusion Models">
+<meta property="og:description" content="One-step diffusion turns monochrome event streams into high-quality color video. ECCV 2026.">
+<meta property="og:image" content="https://liweitu.github.io/EvDiff/assets/teaser.png">
+<meta property="og:url" content="https://liweitu.github.io/EvDiff/">
+<link rel="canonical" href="https://liweitu.github.io/EvDiff/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23ffffff'/%3E%3Cpath d='M4 16h7l3-8 4 16 3-8h7' stroke='%23161616' stroke-width='2.6' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#ffffff; --ink:#161616; --muted:#5f5f5f; --faint:#8f8f8f;
+    --rule:#e4e4e4; --rule-dark:#c9c9c9; --wash:#f6f6f6;
+    --serif:"Source Serif 4",Georgia,serif;
+    --sans:"Source Sans 3","Helvetica Neue",sans-serif;
+    --mono:"IBM Plex Mono",Consolas,monospace;
+    --col:1000px; --gutter:clamp(20px,4vw,48px);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} *{transition:none!important;animation:none!important} }
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+       font-size:17.5px;line-height:1.65;-webkit-font-smoothing:antialiased}
+  ::selection{background:#161616;color:#fff}
+
+  /* ---------- layout scaffolding ---------- */
+  .wrap{max-width:var(--col);margin:0 auto;padding:0 var(--gutter)}
+  section{padding:clamp(56px,8vw,92px) 0;border-top:1px solid var(--rule)}
+  section:first-of-type{border-top:none}
+  .kicker{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.14em;
+          text-transform:uppercase;color:var(--muted);margin-bottom:18px;text-align:center}
+  .kicker b{color:var(--ink);font-weight:600}
+  h2{font-family:var(--serif);font-size:clamp(26px,3.4vw,34px);font-weight:600;
+     line-height:1.2;letter-spacing:-.01em;margin-bottom:22px;text-wrap:balance;text-align:center}
+  h3{font-family:var(--serif);font-size:20px;font-weight:600;margin-bottom:8px}
+  p{max-width:74ch}
+  .lede{font-size:19px;color:var(--muted);max-width:70ch;margin-inline:auto}
+  figure{margin:0}
+  figcaption{font-size:14.5px;color:var(--muted);line-height:1.55;margin:12px auto 0;
+             max-width:88ch;text-align:center}
+  figcaption b{color:var(--ink);font-weight:600}
+  a{color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+  a:hover{background:var(--ink);color:#fff}
+
+  /* ---------- top nav ---------- */
+  nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);
+      backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:54px}
+  .wordmark{font-family:var(--mono);font-weight:600;font-size:15px;letter-spacing:.02em;
+            text-decoration:none;background:none!important}
+  .wordmark span{color:var(--faint);font-weight:400}
+  nav ul{display:flex;gap:26px;list-style:none}
+  nav ul a{font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;
+           text-decoration:none;color:var(--muted);background:none!important}
+  nav ul a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:5px}
+  nav ul a.active{color:var(--ink);font-weight:600}
+  @media (max-width:720px){
+    nav .wrap{gap:14px}
+    nav ul{gap:0;overflow-x:auto;scrollbar-width:none;margin-left:auto}
+    nav ul::-webkit-scrollbar{display:none}
+    nav ul li{flex:none}
+    nav ul a{padding:6px 11px}
+  }
+
+  /* ---------- hero ---------- */
+  header.hero{padding:clamp(56px,9vw,110px) 0 clamp(40px,6vw,64px);text-align:center}
+  .venue{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);
+         font-size:13px;letter-spacing:.12em;font-weight:600;border:1.5px solid var(--ink);
+         padding:7px 14px;margin-bottom:30px}
+  .venue .dot{width:7px;height:7px;background:var(--ink);border-radius:50%}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(34px,5.4vw,58px);
+     line-height:1.08;letter-spacing:-.015em;max-width:19ch;text-wrap:balance;
+     margin:0 auto 34px}
+  h1 em{font-style:italic;font-weight:500}
+  .authors{font-size:17px;line-height:1.9;max-width:78ch;margin:0 auto 10px}
+  .authors a{text-decoration:none;background:none}
+  .authors a:hover{text-decoration:underline}
+  .authors sup{font-size:11.5px;color:var(--muted)}
+  .affils{font-size:15px;color:var(--muted);max-width:80ch;margin:0 auto 8px}
+  .affils sup{font-size:10.5px}
+  .affils .inst+.inst::before{content:"·";margin:0 .9em;color:var(--rule-dark)}
+  .footnote{font-size:14px;color:var(--muted);font-style:italic;max-width:72ch;margin-inline:auto}
+  .cta-row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:34px}
+  .cta{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:13.5px;
+       font-weight:500;letter-spacing:.02em;border:1.5px solid var(--ink);padding:10px 18px;
+       text-decoration:none;background:none!important;transition:background .15s,color .15s}
+  .cta:hover{background:var(--ink);color:#fff}
+  .cta.primary{background:var(--ink);color:#fff}
+  .cta.primary:hover{background:#000}
+  .cta.ghost{border-color:var(--rule-dark);color:var(--muted)}
+  .cta.ghost:hover{border-color:var(--ink);background:var(--ink);color:#fff}
+
+  /* ---------- figures ---------- */
+  figure.major img,figure.major video{width:100%;height:auto;display:block;border:1px solid var(--rule)}
+  .hero-figure{margin-top:72px}
+
+  /* ---------- video panel labels ---------- */
+  .video-frame{border:1px solid var(--rule)}
+  .video-labels{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--rule)}
+  .video-labels span{font-family:var(--mono);font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;
+                     text-align:center;padding:9px 4px;color:var(--muted)}
+  .video-labels span+span{border-left:1px solid var(--rule)}
+  .video-labels .ours{font-weight:600;color:var(--ink)}
+  figure.major .video-frame video{display:block;width:100%;height:auto;border:none}
+
+  /* ---------- method ---------- */
+  .stage-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:44px;
+              border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .stage{padding:26px 26px 30px}
+  .stage+.stage{border-left:1px solid var(--rule)}
+  .stage .num{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--faint);display:block;margin-bottom:10px}
+  .stage p{font-size:15.5px;color:var(--muted);line-height:1.6}
+  @media (max-width:760px){
+    .stage-grid{grid-template-columns:1fr}
+    .stage+.stage{border-left:none;border-top:1px solid var(--rule)}
+  }
+
+  /* ---------- stats band ---------- */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);margin:44px 0 8px;border-top:1px solid var(--ink)}
+  .stat{padding:26px 22px 30px;border-bottom:1px solid var(--rule);text-align:center}
+  .stat+.stat{border-left:1px solid var(--rule)}
+  .stat .v{font-family:var(--mono);font-size:clamp(30px,3.6vw,44px);font-weight:600;letter-spacing:-.02em}
+  .stat .l{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-top:6px}
+  .stat .s{font-size:13.5px;color:var(--faint);margin-top:6px;line-height:1.5}
+  @media (max-width:760px){
+    .stats{grid-template-columns:1fr}
+    .stat+.stat{border-left:none;border-top:1px solid var(--rule)}
+  }
+
+  /* ---------- tables ---------- */
+  .table-wrap{overflow-x:auto;margin-top:30px}
+  table{border-collapse:collapse;width:100%;font-size:15px;min-width:620px}
+  caption{caption-side:top;text-align:center;font-family:var(--mono);font-size:13px;
+          font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-bottom:12px}
+  th,td{padding:9px 14px;text-align:right;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  thead th{font-weight:600;border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);font-size:14px}
+  tbody tr:last-child td{border-bottom:2px solid var(--ink)}
+  td b{font-weight:600}
+  tr.ours td{background:var(--wash);font-weight:500}
+  tr.ours td:first-child{font-weight:600}
+  .tbl-note{font-size:13.5px;color:var(--faint);margin:10px auto 0;text-align:center;max-width:88ch}
+
+  /* ---------- gallery ---------- */
+  .tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:34px 0 22px}
+  .tab{font-family:var(--mono);font-size:13px;letter-spacing:.04em;border:1.5px solid var(--rule-dark);
+       background:none;padding:8px 16px;cursor:pointer;color:var(--muted)}
+  .tab:hover{border-color:var(--ink)}
+  .tab.active{background:var(--ink);border-color:var(--ink);color:#fff}
+  .gallery-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--rule)}
+  .gallery-grid figure{position:relative}
+  .gallery-grid img{width:100%;height:auto;display:block}
+  .gallery-grid figcaption{position:absolute;top:0;left:0;margin:0;font-family:var(--mono);
+      font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#fff;
+      background:rgba(22,22,22,.78);padding:3px 8px}
+  .gallery-grid figcaption.ours{background:#fff;color:var(--ink);font-weight:600;outline:1.5px solid var(--ink)}
+  @media (max-width:860px){ .gallery-grid{grid-template-columns:repeat(3,1fr)} }
+
+  /* ---------- comparison slider ---------- */
+  .compare{margin-top:56px}
+  .compare h3{text-align:center;margin-bottom:14px}
+  .compare-shell{position:relative;overflow:hidden;border:1px solid var(--rule);user-select:none}
+  .compare-shell img{width:100%;height:auto;display:block}
+  .compare-shell .top{position:absolute;inset:0;width:100%;height:100%;
+      clip-path:inset(0 calc(100% - var(--x,50%)) 0 0)}
+  .compare-shell .top img{position:absolute;inset:0}
+  .handle{position:absolute;top:0;bottom:0;left:var(--x,50%);width:2px;background:#fff;
+      box-shadow:0 0 0 1px rgba(0,0,0,.35);pointer-events:none}
+  .handle::after{content:"◂ ▸";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      font-family:var(--mono);font-size:12px;letter-spacing:.05em;color:#161616;background:#fff;
+      border:1.5px solid #161616;padding:5px 9px;white-space:nowrap}
+  .compare-tag{position:absolute;top:10px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+      text-transform:uppercase;color:#fff;background:rgba(22,22,22,.78);padding:4px 9px}
+  .compare-tag.l{left:10px} .compare-tag.r{right:10px}
+  .compare-shell input[type=range]{position:absolute;inset:0;width:100%;height:100%;
+      opacity:0;cursor:ew-resize;margin:0;-webkit-appearance:none;appearance:none}
+
+  /* ---------- poster ---------- */
+  .poster-row img{width:100%;max-width:560px;height:auto;display:block;margin:0 auto;
+                  border:1px solid var(--rule);transition:opacity .15s}
+  .poster-row a.imglink:hover img{opacity:.85}
+  .poster-row p{margin:26px auto 0;text-align:center}
+  @media (max-width:820px){ .poster-row p{margin-top:20px} }
+
+  /* ---------- citation ---------- */
+  .bib{position:relative;background:var(--wash);border:1px solid var(--rule);margin-top:26px}
+  .bib pre{font-family:var(--mono);font-size:13.5px;line-height:1.7;padding:26px 28px;
+           overflow-x:auto;white-space:pre;color:var(--ink)}
+  .copy-btn{position:absolute;top:12px;right:12px;font-family:var(--mono);font-size:12px;
+            letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--ink);
+            background:#fff;padding:7px 14px;cursor:pointer}
+  .copy-btn:hover{background:var(--ink);color:#fff}
+  .cite-note{font-size:13.5px;color:var(--faint);margin:12px auto 0;text-align:center;max-width:88ch}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--rule);padding:44px 0 64px;color:var(--muted);font-size:14.5px}
+  footer .cols{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  footer p{max-width:64ch;line-height:1.7}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="wordmark" href="#top">EvDiff <span>/ ECCV 2026</span></a>
+    <ul>
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#video">Video</a></li>
+      <li><a href="#method">Method</a></li>
+      <li><a href="#results">Results</a></li>
+      <li><a href="#poster">Poster</a></li>
+      <li><a href="#citation">Citation</a></li>
+      <li><a href="https://github.com/LiWeitu/EvDiff" target="_blank" rel="noopener">GitHub ↗</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="venue"><span class="dot"></span>ECCV 2026</div>
+    <h1>EvDiff: Event-Based Video Reconstruction using <em>One-Step</em> Diffusion Models</h1>
+
+    <p class="authors">
+      <a href="https://github.com/LiWeitu" target="_blank" rel="noopener">Weilun Li</a><sup>1,2,*</sup>,
+      Lei Sun<sup>2,*</sup>,
+      Ruixi Gao<sup>1</sup>,
+      Qi Jiang<sup>1</sup>,
+      Yuqin Ma<sup>1</sup>,
+      Kaiwei Wang<sup>1,†</sup>,
+      Ming-Hsuan Yang<sup>3,4</sup>,
+      Luc Van Gool<sup>2</sup>,
+      Danda Pani Paudel<sup>2</sup>
+    </p>
+    <p class="affils">
+      <span class="inst"><sup>1</sup>Zhejiang University</span><span class="inst"><sup>2</sup>INSAIT, Sofia University “St.&nbsp;Kliment Ohridski”</span><span class="inst"><sup>3</sup>UC Merced</span><span class="inst"><sup>4</sup>Google DeepMind</span>
+    </p>
+    <p class="footnote"><sup>*</sup> Equal contribution — work mainly done during Weilun Li’s internship at INSAIT.
+      &ensp;<sup>†</sup> Corresponding authors.</p>
+
+    <div class="cta-row">
+      <a class="cta primary" href="https://arxiv.org/abs/2511.17492" target="_blank" rel="noopener">arXiv ↗</a>
+      <a class="cta" href="https://github.com/LiWeitu/EvDiff" target="_blank" rel="noopener">Code ↗</a>
+      <a class="cta ghost" href="https://huggingface.co/litutu135/EvDiff" target="_blank" rel="noopener">Weights ↗</a>
+      <a class="cta ghost" href="assets/evdiff_poster_eccv2026.pdf" target="_blank" rel="noopener">Poster ↗</a>
+    </div>
+
+    <figure class="major hero-figure">
+      <img src="assets/teaser.png" alt="Teaser: EvDiff reconstructs high-quality color video from monochrome event streams, compared with prior event-to-video paradigms.">
+      <figcaption><b>One step, full color.</b> Left: prior event-to-video paradigms — end-to-end regression
+        (e.g. E2VID) produces faithful but blurry, monochrome frames, while multi-step conditional diffusion
+        is impractical for high-frame-rate video. Right: EvDiff follows a surrogate training framework and
+        reconstructs a color video from a monochrome event stream with a single diffusion step, keeping both
+        fidelity and realism (bottom row: EvDiff vs. ground truth).</figcaption>
+    </figure>
+  </div>
+</header>
+
+<section id="abstract">
+  <div class="wrap">
+    <p class="kicker"><b>01</b> — Abstract</p>
+    <p class="lede">
+      As neuromorphic sensors, event cameras asynchronously record changes in brightness as streams of
+      sparse events with the advantages of high temporal resolution and high dynamic range.
+      Reconstructing intensity images from events is a highly ill-posed task due to the inherent
+      ambiguity of absolute brightness. Early methods generally follow an end-to-end regression
+      paradigm, directly mapping events to intensity frames in a deterministic manner. While effective
+      to some extent, these approaches often yield perceptually inferior results and struggle to scale
+      up in model capacity and training data. In this work, we propose <b>EvDiff</b>, an event-based
+      diffusion model that follows a surrogate training framework to produce high-quality videos. To
+      reduce the high computational cost of high-frame-rate video generation, we design an event-based
+      diffusion model that performs only a single forward diffusion step, equipped with a temporally
+      consistent encoder. Furthermore, our novel surrogate training framework eliminates the dependence
+      on paired event–image datasets, allowing the model to leverage large-scale image datasets for
+      higher capacity. The proposed EvDiff is capable of generating high-quality colorful videos solely
+      from monochromatic event streams. Experiments on real-world datasets demonstrate that our method
+      strikes a sweet spot between fidelity and realism, outperforming existing approaches on both
+      pixel-level and perceptual metrics.
+    </p>
+  </div>
+</section>
+
+<section id="video">
+  <div class="wrap">
+    <p class="kicker"><b>02</b> — Video results</p>
+    <h2>From monochrome events to color video</h2>
+    <figure class="major">
+      <div class="video-frame">
+        <div class="video-labels">
+          <span>ET-Net</span><span class="ours">EvDiff (ours)</span><span>Ground truth</span>
+        </div>
+        <video controls muted autoplay loop playsinline preload="metadata"
+               src="assets/video/dsec_zurich13_comparison.mp4">
+          Your browser does not support embedded video. Please find it
+          <a href="assets/video/dsec_zurich13_comparison.mp4">here</a>.
+        </video>
+      </div>
+      <figcaption>
+        <b>Driving at night, DSEC <i>zurich_city_13_b</i>.</b> Left: ET-Net reconstructs a monochrome
+        stream with blotchy textures. Middle: EvDiff reconstructs a <b>color</b> video from the same
+        monochrome event stream — in a single diffusion step — with natural textures and stable
+        structure. Right: the ground-truth color video. Among the compared methods, only EvDiff
+        produces color from monochromatic events.
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="method">
+  <div class="wrap">
+    <p class="kicker"><b>03</b> — Method</p>
+    <h2>Surrogate training, one-step generation</h2>
+    <p class="lede" style="margin-bottom:34px">
+      EvDiff is built on SD3 and trained in three stages. The core idea: learn an <b>image restoration
+      prior</b> from surrogate pairs, then <b>align sparse event latents</b> to that prior — so large-scale
+      image data can supervise event-to-video reconstruction without any paired event–RGB recording.
+    </p>
+
+    <figure class="major">
+      <img src="assets/pipeline.png" alt="EvDiff pipeline: surrogate DiT pretraining, surrogate distillation into EvEncoder, and joint fine-tuning with the Efficient Temporal Fusion and one-step diffusion.">
+      <figcaption><b>Overview.</b> A 5-bin voxel grid is encoded by the recurrent EvEncoder into a
+        16-channel event latent, refined in a single SD3 forward pass with a flow-matching update, and
+        decoded by the VAE into an RGB frame.</figcaption>
+    </figure>
+
+    <div class="stage-grid">
+      <div class="stage">
+        <span class="num">Stage 1</span>
+        <h3>DiT pretraining</h3>
+        <p>Train an SD3-based one-step refiner and a Surrogate VAE Encoder on 1.8M synthetic LQ–HQ
+           pairs from Places365, using latent MSE and LPIPS.</p>
+      </div>
+      <div class="stage">
+        <span class="num">Stage 2</span>
+        <h3>Surrogate distillation</h3>
+        <p>Use E2VID reconstructions to define surrogate image latents, then distill the EvEncoder
+           with KL and MSE losses — aligning event representations with the restoration latent space.</p>
+      </div>
+      <div class="stage">
+        <span class="num">Stage 3</span>
+        <h3>Joint fine-tuning</h3>
+        <p>Jointly fine-tune EvEncoder, ETF and OSDiff on REDS sequences with v2e-simulated events,
+           using perceptual, optical-flow and latent losses.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <p class="kicker"><b>04</b> — Results</p>
+    <h2>State of the art on real-world benchmarks</h2>
+
+    <div class="stats">
+      <div class="stat"><div class="v">32.2%</div><div class="l">Lower MSE</div><div class="s">BS-ERGB, vs. second best</div></div>
+      <div class="stat"><div class="v">44.9%</div><div class="l">Lower FID</div><div class="s">DSEC, vs. second best</div></div>
+      <div class="stat"><div class="v">RGB</div><div class="l">Color video</div><div class="s">from monochrome events, one diffusion step</div></div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <caption>Quantitative comparison on BS-ERGB</caption>
+        <thead><tr><th>Method</th><th>MSE ↓</th><th>SSIM ↑</th><th>LPIPS ↓</th><th>FID ↓</th><th>FVD ↓</th></tr></thead>
+        <tbody>
+          <tr><td>E2VID</td><td>0.1175</td><td>0.3313</td><td>0.5518</td><td>276</td><td>1688</td></tr>
+          <tr><td>FireNet</td><td>0.0857</td><td>0.3302</td><td>0.5328</td><td>271</td><td>1909</td></tr>
+          <tr><td>E2VID+</td><td>0.0717</td><td><b>0.3710</b></td><td>0.4397</td><td>238</td><td>1652</td></tr>
+          <tr><td>FireNet+</td><td>0.0827</td><td>0.3080</td><td>0.4903</td><td>313</td><td>1562</td></tr>
+          <tr><td>SPADE-E2VID</td><td>0.0891</td><td>0.3235</td><td>0.6715</td><td>347</td><td>2343</td></tr>
+          <tr><td>SSL-E2VID</td><td>0.0798</td><td>0.3448</td><td>0.6169</td><td>312</td><td>1907</td></tr>
+          <tr><td>ET-Net</td><td>0.0683</td><td>0.3557</td><td>0.4566</td><td>270</td><td>1569</td></tr>
+          <tr><td>HyperE2VID</td><td>0.0756</td><td>0.3489</td><td>0.4598</td><td>275</td><td>1673</td></tr>
+          <tr class="ours"><td>EvDiff (ours)</td><td><b>0.0463</b></td><td>0.3394</td><td><b>0.4023</b></td><td><b>148</b></td><td><b>984</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="tbl-note">EvDiff leads four of five metrics: 32.2% lower MSE and 37.8% lower FID than the second-best method.</p>
+
+    <div class="table-wrap">
+      <table>
+        <caption>Quantitative comparison on DSEC</caption>
+        <thead><tr><th>Method</th><th>MSE ↓</th><th>SSIM ↑</th><th>LPIPS ↓</th><th>FID ↓</th><th>FVD ↓</th></tr></thead>
+        <tbody>
+          <tr><td>E2VID</td><td>0.1042</td><td>0.3393</td><td>0.5427</td><td>239</td><td>1541</td></tr>
+          <tr><td>FireNet</td><td>0.0927</td><td>0.3478</td><td>0.5670</td><td>262</td><td>1492</td></tr>
+          <tr><td>E2VID+</td><td>0.0881</td><td>0.2812</td><td>0.5138</td><td>248</td><td>1397</td></tr>
+          <tr><td>FireNet+</td><td>0.0913</td><td>0.2268</td><td>0.5655</td><td>291</td><td>1592</td></tr>
+          <tr><td>SPADE-E2VID</td><td>0.0601</td><td><b>0.4578</b></td><td>0.4911</td><td>234</td><td><b>1277</b></td></tr>
+          <tr><td>SSL-E2VID</td><td>0.1055</td><td>0.3303</td><td>0.5565</td><td>326</td><td>1521</td></tr>
+          <tr><td>ET-Net</td><td>0.0737</td><td>0.2953</td><td>0.5232</td><td>259</td><td>1496</td></tr>
+          <tr><td>HyperE2VID</td><td>0.0691</td><td>0.2977</td><td>0.5297</td><td>272</td><td>1445</td></tr>
+          <tr class="ours"><td>EvDiff (ours)</td><td><b>0.0476</b></td><td>0.3677</td><td><b>0.4226</b></td><td><b>129</b></td><td>1491</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="tbl-note">Best MSE, LPIPS and FID; second-best SSIM. MSE, SSIM and LPIPS use grayscale outputs
+      for fair comparison on both datasets.</p>
+
+    <div class="tabs" id="sceneTabs" role="tablist" aria-label="Select a scene">
+      <button class="tab active" data-scene="bs_0066" role="tab" aria-selected="true">BS-ERGB · 0066</button>
+      <button class="tab" data-scene="bs_0068" role="tab" aria-selected="false">BS-ERGB · 0068</button>
+      <button class="tab" data-scene="dsec_0077" role="tab" aria-selected="false">DSEC · 0077</button>
+      <button class="tab" data-scene="dsec_0080" role="tab" aria-selected="false">DSEC · 0080</button>
+    </div>
+    <div class="gallery-grid" id="galleryGrid">
+      <figure><img src="assets/gallery/bs_0066_events.jpg" alt="Input events"><figcaption>Events</figcaption></figure>
+      <figure><img src="assets/gallery/bs_0066_e2vid.jpg" alt="E2VID result"><figcaption>E2VID</figcaption></figure>
+      <figure><img src="assets/gallery/bs_0066_etnet.jpg" alt="ET-Net result"><figcaption>ET-Net</figcaption></figure>
+      <figure><img src="assets/gallery/bs_0066_hyper.jpg" alt="HyperE2VID result"><figcaption>HyperE2VID</figcaption></figure>
+      <figure><img src="assets/gallery/bs_0066_evdiff.jpg" alt="EvDiff result"><figcaption class="ours">EvDiff (ours)</figcaption></figure>
+      <figure><img src="assets/gallery/bs_0066_gt.jpg" alt="Ground truth"><figcaption>GT</figcaption></figure>
+    </div>
+
+    <div class="compare">
+      <h3>EvDiff vs. ET-Net — drag to compare</h3>
+      <div class="compare-shell" id="compareShell">
+        <img id="cmpBase" src="assets/gallery/bs_0066_evdiff.jpg" alt="EvDiff reconstruction (base layer)">
+        <div class="top"><img id="cmpTop" src="assets/gallery/bs_0066_etnet.jpg" alt="ET-Net result (top layer)"></div>
+        <span class="compare-tag l">ET-Net</span>
+        <span class="compare-tag r">EvDiff (ours)</span>
+        <div class="handle"></div>
+        <input type="range" min="0" max="100" value="50" id="cmpRange" aria-label="Comparison position">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="poster">
+  <div class="wrap">
+    <p class="kicker"><b>05</b> — Poster</p>
+    <h2>ECCV 2026 poster</h2>
+    <div class="poster-row">
+      <a class="imglink" href="assets/evdiff_poster_eccv2026.pdf" target="_blank" rel="noopener">
+        <img src="assets/poster_preview.jpg" alt="EvDiff ECCV 2026 poster preview">
+      </a>
+      <p class="lede">
+        The full poster summarizes motivation, the three-stage training pipeline, benchmark tables and
+        efficiency analysis on a single sheet.
+        <a href="assets/evdiff_poster_eccv2026.pdf" target="_blank" rel="noopener">Download the PDF ↗</a>
+        (12.8&nbsp;MB).
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="citation">
+  <div class="wrap">
+    <p class="kicker"><b>06</b> — Citation</p>
+    <h2>Cite this work</h2>
+    <div class="bib">
+      <button class="copy-btn" id="copyBib" type="button">Copy</button>
+      <pre id="bibText">@misc{li2025evdiffhighqualityvideo,
+      title        = {EvDiff: High Quality Video with an Event Camera},
+      author       = {Weilun Li and Lei Sun and Ruixi Gao and Qi Jiang and Yuqin Ma and
+                      Kaiwei Wang and Ming-Hsuan Yang and Luc Van Gool and Danda Pani Paudel},
+      year         = {2025},
+      eprint       = {2511.17492},
+      archivePrefix= {arXiv},
+      primaryClass = {cs.CV},
+      url          = {https://arxiv.org/abs/2511.17492}
+}</pre>
+    </div>
+    <p class="cite-note">This is the official BibTeX entry from the repository. The arXiv record currently
+      carries an earlier title; it will be refreshed to the ECCV 2026 version — update this block then.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap cols">
+    <p>
+      This research was supported by the Zhejiang Provincial Natural Science Foundation of China
+      (No. LZ24F050003), the Bulgarian National Roadmap for Research Infrastructure (support for
+      INSAIT), and the European Union’s Horizon Europe programme under grant agreement 101168521.
+    </p>
+    <p style="text-align:right">
+      Code released under the <a href="https://github.com/LiWeitu/EvDiff/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>.<br>
+      EvDiff © 2026 — maintained by <a href="https://github.com/LiWeitu" target="_blank" rel="noopener">Weilun Li</a>.
+    </p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // ---- gallery scene tabs: swap 6 images per scene, keep compare slider in sync
+  var scenes = ['bs_0066', 'bs_0068', 'dsec_0077', 'dsec_0080'];
+  var labels = ['events', 'e2vid', 'etnet', 'hyper', 'evdiff', 'gt'];
+  var tabs = document.querySelectorAll('#sceneTabs .tab');
+  var imgs = document.querySelectorAll('#galleryGrid img');
+  var cmpBase = document.getElementById('cmpBase');
+  var cmpTop = document.getElementById('cmpTop');
+
+  function setScene(scene) {
+    imgs.forEach(function (img, i) {
+      img.src = 'assets/gallery/' + scene + '_' + labels[i] + '.jpg';
+      img.alt = labels[i] + ' result, ' + scene;
+    });
+    cmpBase.src = 'assets/gallery/' + scene + '_evdiff.jpg';
+    cmpTop.src = 'assets/gallery/' + scene + '_etnet.jpg';
+    tabs.forEach(function (t) {
+      var on = t.dataset.scene === scene;
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-selected', on);
+    });
+  }
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { setScene(t.dataset.scene); });
+  });
+
+  // ---- EvDiff vs GT comparison slider (range input drives clip-path)
+  var shell = document.getElementById('compareShell');
+  var range = document.getElementById('cmpRange');
+  function setX(v) { shell.style.setProperty('--x', v + '%'); }
+  range.addEventListener('input', function () { setX(range.value); });
+  setX(range.value);
+  // touch/pointer drag directly on the shell as well
+  var dragging = false;
+  function fromEvent(e) {
+    var r = shell.getBoundingClientRect();
+    var x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    setX(Math.max(0, Math.min(100, x / r.width * 100)));
+  }
+  ['pointerdown'].forEach(function (ev) {
+    shell.addEventListener(ev, function (e) { dragging = true; fromEvent(e); });
+  });
+  ['pointermove'].forEach(function (ev) {
+    shell.addEventListener(ev, function (e) { if (dragging) fromEvent(e); });
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) {
+    shell.addEventListener(ev, function () { dragging = false; });
+  });
+
+  // ---- copy BibTeX
+  var btn = document.getElementById('copyBib');
+  btn.addEventListener('click', function () {
+    var text = document.getElementById('bibText').textContent;
+    function done(ok) {
+      btn.textContent = ok ? 'Copied ✓' : 'Press Ctrl+C';
+      setTimeout(function () { btn.textContent = 'Copy'; }, 1800);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      done(document.execCommand('copy'));
+      document.body.removeChild(ta);
+    }
+  });
+  // ---- nav scroll-spy: highlight the section currently in view
+  var navLinks = document.querySelectorAll('nav ul a[href^="#"]');
+  var byId = {};
+  navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var spy = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      navLinks.forEach(function (a) { a.classList.remove('active'); });
+      if (byId[e.target.id]) byId[e.target.id].classList.add('active');
+    });
+  }, { rootMargin: '-35% 0px -60% 0px' });
+  ['abstract', 'video', 'method', 'results', 'poster', 'citation'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) spy.observe(el);
+  });
+})();
+</script>
+</body>
+</html>

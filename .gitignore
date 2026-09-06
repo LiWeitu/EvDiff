@@ -39,3 +39,7 @@ wandb/
 .idea/
 .DS_Store
 Thumbs.db
+
+# --- project website (docs/) ---
+!docs/assets/**/*.png
+!docs/assets/**/*.mp4

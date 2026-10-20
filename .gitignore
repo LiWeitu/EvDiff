@@ -43,3 +43,10 @@ Thumbs.db
 # --- project website (docs/) ---
 !docs/assets/**/*.png
 !docs/assets/**/*.mp4
+
+# Local training configuration and outputs
+script/training/paths.local.sh
+outputs/
+logs/
+wandb/
+excluded_files.txt

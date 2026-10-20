@@ -1,0 +1,10 @@
+# Install torch/torchvision for your CUDA runtime first.
+-r requirements.txt
+accelerate
+transformers
+pyiqa
+Pillow
+scikit-image
+tensorboard
+safetensors
+# Optional: wandb (set REPORT_TO=wandb)

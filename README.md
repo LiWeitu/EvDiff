@@ -4,10 +4,10 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2511.17492-b31a1c)](https://arxiv.org/abs/2511.17492)
 [![ECCV 2026](https://img.shields.io/badge/ECCV-2026-0B4E78)](https://eccv.ecva.net/)
 
-Official inference release for **EvDiff**, a one-step diffusion model that
+Official code release for **EvDiff**, a one-step diffusion model that
 reconstructs high-quality color videos from monochrome event-camera streams.
 
-> This repository provides the inference code and data-preparation tools to
+> This repository provides training, inference, and data-preparation tools to
 > reproduce EvDiff's reconstruction results. Evaluation is performed with the
 > [EVREAL](https://github.com/ercanburak/EVREAL) benchmark suite.
 
@@ -19,6 +19,7 @@ reconstructs high-quality color videos from monochrome event-camera streams.
 - [Data format](#data-format)
 - [Preparing data (DSEC / BS-ERGB)](#preparing-data-dsec--bs-ergb)
 - [Download weights](#download-weights)
+- [Training](TRAINING.md)
 - [Inference](#inference)
 - [Expected output](#expected-output)
 - [Citation](#citation)
@@ -34,12 +35,12 @@ It reconstructs color videos from monochrome event streams while keeping both
 **high fidelity** and **temporal consistency**, and removes the dependence on
 paired event–image datasets via a Surrogate Training Framework.
 
-**Training (3 stages, code not included here):**
+**Training (3 stages; see [TRAINING.md](TRAINING.md) for code and commands):**
 
 | Stage | What | Data |
 |-------|------|------|
 | 1 | DiT training — synthesize E2VID-style degradation as a surrogate, train the one-step diffusion model on HQ/LQ image pairs | Places365 (1.8M images) |
-| 2 | EvEncoder distillation — distill the event encoder against a frozen E2VID teacher so events map into the diffusion latent space | REDS (synthetic events via v2e) |
+| 2 | EvEncoder distillation — distill the event encoder against a frozen E2VID+ teacher (public training code) so events map into the diffusion latent space | REDS (synthetic events via v2e) |
 | 3 | Joint finetune — EvEncoder + DiT + RAFT temporal loss | REDS |
 
 **At inference**, reconstruction is **one-step** — a single diffusion forward
@@ -54,6 +55,8 @@ The EvEncoder is recurrent, so its hidden state is warm-started across frames
 within each sequence (and reset at each sequence boundary).
 
 ---
+
+> **Training teacher:** The original experiments and released EvDiff reconstruction weights used an unpublished internal teacher. The public training code uses the publicly available [E2VID+ teacher from EVREAL](https://github.com/ercanburak/EVREAL/tree/main/pretrained/E2VID%2B) instead. The internal teacher architecture and weights are not included. Training with this substitution has not been validated to reproduce the reported results.
 
 ## Installation
 

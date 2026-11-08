@@ -7,9 +7,8 @@
 Official code release for **EvDiff**, a one-step diffusion model that
 reconstructs high-quality color videos from monochrome event-camera streams.
 
-> This repository provides training, inference, and data-preparation tools to
-> reproduce EvDiff's reconstruction results. Evaluation is performed with the
-> [EVREAL](https://github.com/ercanburak/EVREAL) benchmark suite.
+> This repository provides training, inference, data preparation, and
+> [evaluation](eval/README.md) for event-based video reconstruction.
 
 ---
 
@@ -22,6 +21,7 @@ reconstructs high-quality color videos from monochrome event-camera streams.
 - [Training](TRAINING.md)
 - [Inference](#inference)
 - [Expected output](#expected-output)
+- [Evaluation](#evaluation)
 - [Citation](#citation)
 - [Acknowledgements](#acknowledgements)
 - [License](#license)
@@ -106,68 +106,70 @@ Key conventions (the loader enforces / assumes these):
 - The three `events_*.npy` files are **mandatory**; the `images*.npy` files are needed for the `between_frames` voxel method used by inference.
 - **Spatial resolution** must be a multiple of 16 (the VAE requires it). For DSEC this is **464 × 640** (after cropping). The loader will auto-crop to a multiple of 16 if needed.
 
-The loader is `MemMapDatasetVal` in [`data/data_mem.py`](data/data_mem.py). It
-builds voxels on the fly via `get_voxel_grid_fast` (nearest-bin accumulation,
-5 bins by default).
+The current public inference script builds voxels with `get_voxel_grid_fast`
+in [`data/data_mem.py`](data/data_mem.py). It normalizes timestamps within each
+event window, scales them to the temporal bin range, and truncates to integer
+bin indices. Each event contributes its signed polarity to one bin. The default
+is five bins.
 
 ---
 
 ## Preparing data (DSEC / BS-ERGB)
 
-EvDiff reuses the **EVREAL** data format and preparation pipeline. Both
-evaluation datasets used in the paper — **DSEC** and **BS-ERGB** — are
-processed exactly as in the [EVREAL](https://github.com/ercanburak/EVREAL) benchmark.
+EvDiff reads both datasets in the
+[EVREAL](https://github.com/ercanburak/EVREAL#preparing-datasets) memmap format.
+The preparation steps differ by dataset.
 
-### Option A — use EVREAL's preparation (recommended, fully consistent)
+### DSEC
 
-Follow the EVREAL repository to convert raw data into the mem-map `.npy` format
-above. This guarantees the voxel construction and frame indexing match the
-paper's evaluation.
+Use the 12 sequences in the [official DSEC test split](https://dsec.ifi.uzh.ch/dsec-datasets/download/).
+For `interlaken_00_a`, download the left events, rectified left images, left
+image exposure timestamps, and calibration. Arrange the files under the
+sequence directory as shown below. Save the downloaded left exposure
+timestamps as `images/left/exposure_timestamps.txt`.
 
-### Option B — convert DSEC with the included tool
+```text
+data/DSEC/test/interlaken_00_a/
+├── calibration/cam_to_cam.yaml
+├── events/left/events.h5
+└── images/left/
+    ├── exposure_timestamps.txt
+    └── rectified/*.png
+```
 
-This repo also ships a DSEC → mem converter in [`tools/dsec/`](tools/dsec/)
-that produces the same format. It is a class API (no CLI flags); edit the
-`if __name__ == "__main__"` block in
+From the repository root, call the Python API in
 [`tools/dsec/convert_small_align_rgb.py`](tools/dsec/convert_small_align_rgb.py):
 
-```python
+```bash
+python - <<'PY'
 from tools.dsec.convert_small_align_rgb import DSECToHQFConverter
 
-converter = DSECToHQFConverter(
-    dsec_path="/path/to/DSEC/test/interlaken_00_a",        # raw DSEC sequence dir
-    output_path="/path/to/DSEC_mem/test/interlaken_00_a",  # mem-map output dir
-    event_chunk_size=20_000_000,
-    image_batch_size=50,
-)
-converter.convert()
+DSECToHQFConverter(
+    dsec_path="data/DSEC/test/interlaken_00_a",
+    output_path="data/DSEC_mem/test/interlaken_00_a",
+).convert()
+PY
 ```
 
-Batch mode (whole split):
+The converter remaps the rectified left RGB frames to the left event-camera
+view, applies the same crop to the frames and event coordinates, and uses each
+frame's exposure midpoint to index the events. The remap can leave a blank
+band near the bottom of an aligned frame.
 
-```python
-from tools.dsec.convert_small_align_rgb import batch_convert
+The [inference command below](#inference) uses `./data/DSEC_mem/test` as its
+input root. Add `--sequences interlaken_00_a` to run that sequence alone. To
+convert the full test split, arrange all sequence directories under
+`data/DSEC/test` and call `batch_convert("data/DSEC/test", "data/DSEC_mem/test")`
+from the same module.
 
-batch_convert(
-    dsec_base_path="/path/to/DSEC/test",
-    hqf_base_path="/path/to/DSEC_mem/test",
-    event_chunk_size=20_000_000,
-    image_batch_size=100,
-)
-```
+### BS-ERGB
 
-**Input (raw DSEC sequence dir)** must contain `events/left/events.h5`,
-`images/left/rectified/*.png`, `images/left/exposure_timestamps.txt`, and
-`calibration/cam_to_cam.yaml`. Two converter variants exist:
-`convert_small_align_rgb.py` saves images in **RGB** (use this one);
-`convert_small_align.py` leaves **BGR** (older).
-
-> **DSEC event–RGB alignment.** In the raw [DSEC](https://github.com/uzh-rpg/DSEC)
-> dataset, the event stream and the RGB frames are **not spatially aligned**.
-> The converter follows the official alignment method described by the DSEC
-> authors (in the DSEC repository). After alignment, the bottom of each frame
-> contains a blank band — this is **expected and normal** (a side effect of the
-> rectification/crop to align the event sensor and the RGB camera), not a bug.
+Obtain the data from the [BS-ERGB download page](https://github.com/uzh-rpg/timelens-pp)
+and use the ten sequences in the
+[EVREAL handheld split](https://github.com/ercanburak/EVREAL/blob/main/config/dataset/BS_ERGB_handheld.json).
+Place the prepared sequences in the memmap layout above and pass their parent
+directory as `--input_dir`. Keep the GT frames and events in the same sensor
+coordinates. For the evaluation crop, see [Evaluation](#evaluation).
 
 ---
 
@@ -251,9 +253,23 @@ python test/infer_e2vid.py \
 <output_dir>/<model_name>/<seq>/<i:04d>.png
 ```
 
-e.g. `./outputs/evdiff/interlaken_00_a/0000.png`, `0001.png`, … One PNG per
-reconstructed frame, in sequence order. Each frame `i` is reconstructed from
-the events between frame `i-1` and frame `i`.
+For example, the first output is
+`./outputs/evdiff/interlaken_00_a/0000.png`. For `i > 0`, output `i` uses the
+events between frames `i-1` and `i` and corresponds to `images.npy[i]`.
+Output `0000.png` uses the events up to the first frame.
+
+---
+
+## Evaluation
+
+See the [evaluation guide](eval/README.md) for the MSE, SSIM, LPIPS, FID,
+and FVD command, dataset splits, and reference results. The evaluator pairs
+predictions by frame index and scores the same image region for all methods.
+
+For BS-ERGB, the legacy EvDiff evaluator used a center crop of the reference
+frames that was five pixels to the right of the prediction region. The current
+evaluation uses a shared region in event-camera coordinates. Its reference
+scores use the protocol described in the evaluation guide.
 
 ---
 
@@ -287,7 +303,7 @@ If you use this work, please cite:
 
 - The diffusion model is built on [Stable Diffusion 3](https://huggingface.co/stabilityai/stable-diffusion-3-medium-diffusers)
   by Stability AI.
-- The data format and preparation pipeline follow the [EVREAL](https://github.com/ercanburak/EVREAL) benchmark.
+- The memmap data format follows the [EVREAL](https://github.com/ercanburak/EVREAL) benchmark.
 - Event data and evaluation use the [DSEC](https://github.com/uzh-rpg/DSEC) and [BS-ERGB](https://github.com/uzh-rpg/timelens-pp) datasets.
 - The SD3 MMDiT adapter wiring uses [🤗 PEFT](https://github.com/huggingface/peft)
   and [🤗 Diffusers](https://github.com/huggingface/diffusers).

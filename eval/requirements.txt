@@ -1,0 +1,8 @@
+torch>=2.1
+torchvision
+numpy
+scipy
+opencv-python-headless
+Pillow
+pyiqa==0.1.16
+pytorch-fid==0.3.0

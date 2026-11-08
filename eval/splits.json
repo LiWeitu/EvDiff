@@ -1,0 +1,28 @@
+{
+  "BS_ERGB": {
+    "may29_handheld_01": {"frames": [1, 350], "roi": [0, 1, 624, 960]},
+    "may29_handheld_02": {"frames": [1, 222], "roi": [0, 1, 624, 960]},
+    "may29_handheld_03": {"frames": [1, 450], "roi": [0, 0, 624, 960]},
+    "may29_handheld_04": {"frames": [1, 160], "roi": [1, 0, 623, 960]},
+    "may29_rooftop_handheld_01": {"frames": [1, 592], "roi": [0, 0, 624, 960]},
+    "may29_rooftop_handheld_02": {"frames": [1, 427], "roi": [0, 0, 624, 960]},
+    "may29_rooftop_handheld_03": {"frames": [1, 367], "roi": [0, 0, 624, 960]},
+    "may29_rooftop_handheld_05": {"frames": [1, 267], "roi": [0, 0, 624, 960]},
+    "street_crossing_07": {"frames": [1, 1226], "roi": [0, 1, 624, 960]},
+    "street_crossing_08": {"frames": [1, 530], "roi": [0, 1, 624, 960]}
+  },
+  "DSEC": {
+    "interlaken_00_a": {"frames": [1, 1142], "roi": [0, 0, 464, 640]},
+    "interlaken_00_b": {"frames": [1, 1616], "roi": [0, 0, 464, 640]},
+    "interlaken_01_a": {"frames": [1, 2262], "roi": [0, 0, 464, 640]},
+    "thun_01_a": {"frames": [1, 196], "roi": [0, 0, 464, 640]},
+    "thun_01_b": {"frames": [1, 1078], "roi": [0, 0, 464, 640]},
+    "zurich_city_12_a": {"frames": [1, 764], "roi": [0, 0, 464, 640]},
+    "zurich_city_13_a": {"frames": [1, 378], "roi": [0, 0, 464, 640]},
+    "zurich_city_13_b": {"frames": [1, 314], "roi": [0, 0, 464, 640]},
+    "zurich_city_14_a": {"frames": [1, 438], "roi": [0, 0, 464, 640]},
+    "zurich_city_14_b": {"frames": [1, 576], "roi": [0, 0, 464, 640]},
+    "zurich_city_14_c": {"frames": [1, 1190], "roi": [0, 0, 464, 640]},
+    "zurich_city_15_a": {"frames": [1, 1238], "roi": [0, 0, 464, 640]}
+  }
+}
